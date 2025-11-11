@@ -2,17 +2,6 @@ import { useEffect } from 'react';
 import InputError from '@/Components/InputError';
 import { Head, Link, useForm } from '@inertiajs/react';
 
-
-
-// Icon untuk di atas card (panah masuk)
-function LoginIcon() {
-    return (
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-8 h-8">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15m-3-6l-3-3m0 0l-3 3m3-3v12" />
-        </svg>
-    );
-}
-
 // Icon untuk input nama (user)
 function UserIcon() {
     return (
@@ -68,7 +57,8 @@ export default function Register() {
 
     const submit = (e) => {
         e.preventDefault();
-        post(route('register'));
+        // PERBAIKAN: Ganti route() dengan path langsung
+        post('/register');
     };
 
     return (
@@ -85,11 +75,6 @@ export default function Register() {
 
             {/* Wrapper untuk Card + Icon di atasnya */}
             <div className="relative w-full max-w-sm">
-
-                {/* Icon di atas Card
-                <div className="absolute z-10 p-3 bg-white rounded-lg shadow-lg left-1/2 -top-7 -translate-x-1/2">
-                    <LoginIcon />
-                </div> */}
 
                 {/* Card Putih */}
                 <div className="relative pt-16 pb-8 px-6 bg-white rounded-2xl shadow-xl">
@@ -204,7 +189,10 @@ export default function Register() {
                     {/* Toggle Login / Daftar */}
                     <div className="p-1 mt-6 bg-gray-100 rounded-lg flex">
                         {/* Tab Login (Link) */}
-                        <Link href={route('login')} className="w-1/2 py-2 font-medium text-center text-gray-500 transition-colors duration-300 rounded-lg hover:text-green-700">
+                        <Link 
+                            href="/login" // PERBAIKAN: Ganti route() dengan path
+                            className="w-1/2 py-2 font-medium text-center text-gray-500 transition-colors duration-300 rounded-lg hover:text-green-700"
+                        >
                             Login
                         </Link>
                         

@@ -1,12 +1,18 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
-use Illuminate\Foundation\Application; // Pastikan 'use' ini ada
+use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
-// --- TAMBAHKAN BLOK INI KEMBALI ---
-// Ini adalah rute untuk halaman utama (http://127.0.0.1:8000/)
+// IMPORT CONTROLLER - GUNAKAN USE STATEMENT YANG BENAR
+use App\Http\Controllers\Admin\SiswaController;
+use App\Http\Controllers\Admin\PembayaranController;
+use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\User\DashboardController as UserDashboardController;
+
+// Halaman Utama (Welcome)
 Route::get('/', function () {
     return Inertia::render('Welcome', [
         'canLogin' => Route::has('login'),
@@ -15,27 +21,40 @@ Route::get('/', function () {
         'phpVersion' => PHP_VERSION,
     ]);
 });
-// ---------------------------------
-
 
 // Rute untuk USER (role: user)
 Route::middleware(['auth', 'verified', 'role:user'])->group(function () {
-    Route::get('/dashboard', function () {
-        return Inertia::render('User/Dashboard');
-    })->name('dashboard');
+    
+    Route::get('/dashboard', [UserDashboardController::class, 'index'])->name('dashboard');
+    Route::get('/laporan/{laporan}/download', [UserDashboardController::class, 'downloadLaporan'])
+           ->name('user.laporan.download');
 });
 
 // Rute untuk ADMIN (role: admin)
 Route::middleware(['auth', 'verified', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
-    Route::get('/dashboard', function () {
-        return Inertia::render('Admin/Dashboard');
-    })->name('dashboard');
+    
+    // GUNAKAN CONTROLLER YANG SUDAH DIPERBAIKI
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    // Route Export PDF - PASTIKAN INI ADA
+    Route::get('/dashboard/export-pdf', [DashboardController::class, 'exportPdf'])->name('admin.dashboard.export-pdf');
+    Route::get('/dashboard/export-data', [DashboardController::class, 'exportData'])->name('admin.dashboard.export-data');
+    // Rute resource
+    Route::resource('siswa', SiswaController::class);
+    Route::resource('users', UserController::class);
+    Route::resource('infaq', PembayaranController::class)->except([
+        'create', 'store', 'show'
+    ])->parameters(['infaq' => 'pembayaran']);
 
-    // Tambahkan rute admin lainnya di sini
-    // contoh: Route::get('/users', [UserController::class, 'index'])->name('users.index');
+    // Rute lainnya
+    Route::post('siswa/{siswa}/pembayaran', [PembayaranController::class, 'store'])
+           ->name('siswa.pembayaran.store');
+    Route::post('siswa/{siswa}/send-report', [SiswaController::class, 'sendReportToUser'])
+           ->name('siswa.send-report');
+    Route::post('laporan/kirim-per-kelas', [SiswaController::class, 'kirimLaporanPerKelas'])
+           ->name('laporan.kirim-per-kelas');
 });
 
-// Rute Profile (bisa diakses keduanya)
+// Rute Profile
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');

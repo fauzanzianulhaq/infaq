@@ -24,14 +24,14 @@ export default function AuthenticatedLayout({ header, children }) {
                                 </Link>
                             </div>
 
-                            {/* --- MODIFIKASI NAVIGASI DESKTOP DIMULAI --- */}
+                            {/* --- NAVIGASI DESKTOP --- */}
                             <div className="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
                                 
                                 {/* Tampilkan jika rolenya 'user' */}
                                 {user.role === 'user' && (
                                     <NavLink
-                                        href={route('dashboard')}
-                                        active={route().current('dashboard')}
+                                        href="/dashboard"
+                                        active={window.location.pathname === '/dashboard'}
                                     >
                                         Dashboard
                                     </NavLink>
@@ -40,28 +40,49 @@ export default function AuthenticatedLayout({ header, children }) {
                                 {/* Tampilkan jika rolenya 'admin' */}
                                 {user.role === 'admin' && (
                                     <NavLink
-                                        href={route('admin.dashboard')}
-                                        active={route().current('admin.dashboard')}
+                                        href="/admin/dashboard"
+                                        active={window.location.pathname === '/admin/dashboard'}
                                     >
                                         Admin Dashboard
                                     </NavLink>
                                 )}
                                 
-                                {/* CONTOH: Tambahkan link admin lain di sini 
-                                  {user.role === 'admin' && (
-                                    <NavLink href={route('admin.users.index')} active={route().current('admin.users.index')}>
-                                        Manage Users
+                                {/* === MENU BARU 1: KELOLA SISWA === */}
+                                {user.role === 'admin' && (
+                                    <NavLink 
+                                        href="/admin/siswa" 
+                                        active={window.location.pathname.startsWith('/admin/siswa')}
+                                    >
+                                        Kelola Siswa
                                     </NavLink>
-                                  )}
-                                */}
+                                )}
+                                
+                                {/* === MENU BARU 2: KELOLA INFAQ === */}
+                                {user.role === 'admin' && (
+                                    <NavLink 
+                                        href="/admin/infaq" 
+                                        active={window.location.pathname.startsWith('/admin/infaq')}
+                                    >
+                                        Kelola Infaq
+                                    </NavLink>
+                                )}
+                
+                                {/* === MENU BARU 3: KELOLA GURU === */}
+                                {user.role === 'admin' && (
+                                    <NavLink 
+                                        href="/admin/users" 
+                                        active={window.location.pathname.startsWith('/admin/users')}
+                                    >
+                                        Kelola Guru
+                                    </NavLink>
+                                )}
 
                             </div>
-                            {/* --- MODIFIKASI NAVIGASI DESKTOP SELESAI --- */}
+                            {/* --- NAVIGASI DESKTOP SELESAI --- */}
                             
                         </div>
 
                         <div className="hidden sm:ms-6 sm:flex sm:items-center">
-                            {/* ... (Dropdown Profile dan Nama User, biarkan saja) ... */}
                             <div className="relative ms-3">
                                 <Dropdown>
                                     <Dropdown.Trigger>
@@ -90,12 +111,12 @@ export default function AuthenticatedLayout({ header, children }) {
 
                                     <Dropdown.Content>
                                         <Dropdown.Link
-                                            href={route('profile.edit')}
+                                            href="/profile"
                                         >
                                             Profile
                                         </Dropdown.Link>
                                         <Dropdown.Link
-                                            href={route('logout')}
+                                            href="/logout"
                                             method="post"
                                             as="button"
                                         >
@@ -107,7 +128,6 @@ export default function AuthenticatedLayout({ header, children }) {
                         </div>
 
                         <div className="-me-2 flex items-center sm:hidden">
-                            {/* ... (Tombol Hamburger, biarkan saja) ... */}
                             <button
                                 onClick={() =>
                                     setShowingNavigationDropdown(
@@ -150,7 +170,7 @@ export default function AuthenticatedLayout({ header, children }) {
                     </div>
                 </div>
 
-                {/* --- MODIFIKASI NAVIGASI MOBILE DIMULAI --- */}
+                {/* --- NAVIGASI MOBILE --- */}
                 <div
                     className={
                         (showingNavigationDropdown ? 'block' : 'hidden') +
@@ -162,8 +182,8 @@ export default function AuthenticatedLayout({ header, children }) {
                         {/* Tampilkan jika rolenya 'user' */}
                         {user.role === 'user' && (
                             <ResponsiveNavLink
-                                href={route('dashboard')}
-                                active={route().current('dashboard')}
+                                href="/dashboard"
+                                active={window.location.pathname === '/dashboard'}
                             >
                                 Dashboard
                             </ResponsiveNavLink>
@@ -172,24 +192,40 @@ export default function AuthenticatedLayout({ header, children }) {
                         {/* Tampilkan jika rolenya 'admin' */}
                         {user.role === 'admin' && (
                             <ResponsiveNavLink
-                                href={route('admin.dashboard')}
-                                active={route().current('admin.dashboard')}
+                                href="/admin/dashboard"
+                                active={window.location.pathname === '/admin/dashboard'}
                             >
                                 Admin Dashboard
                             </ResponsiveNavLink>
                         )}
                         
-                        {/* CONTOH: Tambahkan link admin lain di sini 
-                          {user.role === 'admin' && (
-                            <ResponsiveNavLink href={route('admin.users.index')} active={route().current('admin.users.index')}>
-                                Manage Users
-                            </ResponsiveNavLink>
-                          )}
-                        */}
+                        {/* === MENU BARU MOBILE === */}
+                        {user.role === 'admin' && (
+                            <>
+                                <ResponsiveNavLink 
+                                    href="/admin/siswa" 
+                                    active={window.location.pathname.startsWith('/admin/siswa')}
+                                >
+                                    Kelola Siswa
+                                </ResponsiveNavLink>
+                                <ResponsiveNavLink 
+                                    href="/admin/infaq" 
+                                    active={window.location.pathname.startsWith('/admin/infaq')}
+                                >
+                                    Kelola Infaq
+                                </ResponsiveNavLink>
+                                <ResponsiveNavLink 
+                                    href="/admin/users" 
+                                    active={window.location.pathname.startsWith('/admin/users')}
+                                >
+                                    Kelola Guru
+                                </ResponsiveNavLink>
+                            </>
+                        )}
+
                     </div>
 
                     <div className="border-t border-gray-200 pb-1 pt-4">
-                        {/* ... (Menu Profile Mobile, biarkan saja) ... */}
                         <div className="px-4">
                             <div className="text-base font-medium text-gray-800">
                                 {user.name}
@@ -200,12 +236,12 @@ export default function AuthenticatedLayout({ header, children }) {
                         </div>
 
                         <div className="mt-3 space-y-1">
-                            <ResponsiveNavLink href={route('profile.edit')}>
+                            <ResponsiveNavLink href="/profile">
                                 Profile
                             </ResponsiveNavLink>
                             <ResponsiveNavLink
                                 method="post"
-                                href={route('logout')}
+                                href="/logout"
                                 as="button"
                             >
                                 Log Out
@@ -213,7 +249,7 @@ export default function AuthenticatedLayout({ header, children }) {
                         </div>
                     </div>
                 </div>
-                {/* --- MODIFIKASI NAVIGASI MOBILE SELESAI --- */}
+                {/* --- NAVIGASI MOBILE SELESAI --- */}
             </nav>
 
             {header && (

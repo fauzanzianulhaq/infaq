@@ -29,9 +29,9 @@ export default function Welcome({ auth }) {
                         {/* Navigasi Login/Register/Dashboard */}
                         <nav className="flex items-center space-x-4">
                             {user ? (
-                                // **PERBAIKAN:** Jika sudah login, link ini pintar
+                                // **PERBAIKAN:** Ganti route() dengan path langsung
                                 <Link
-                                    href={user.role === 'admin' ? route('admin.dashboard') : route('dashboard')}
+                                    href={user.role === 'admin' ? '/admin/dashboard' : '/dashboard'}
                                     className="rounded-md px-3 py-2 text-sm font-medium text-gray-700 transition hover:text-red-600 dark:text-gray-300 dark:hover:text-red-500"
                                 >
                                     Dashboard
@@ -40,13 +40,13 @@ export default function Welcome({ auth }) {
                                 // Jika belum login, tampilkan Login & Register
                                 <>
                                     <Link
-                                        href={route('login')}
+                                        href="/login"
                                         className="rounded-md px-3 py-2 text-sm font-medium text-gray-700 transition hover:text-green-600 dark:text-gray-300 dark:hover:text-green-500"
                                     >
                                         Log in
                                     </Link>
                                     <Link
-                                        href={route('register')}
+                                        href="/register"
                                         className="rounded-md dark:bg-green-700 px-4 py-2 text-sm font-medium text-white transition hover:bg-green-800"
                                     >
                                         Register
@@ -73,11 +73,8 @@ export default function Welcome({ auth }) {
                             
                             {/* Tombol Call-to-Action (CTA) */}
                             <Link
-                                // Link ini juga pintar:
-                                // - Jika login sbg user -> ke user dashboard
-                                // - Jika login sbg admin -> ke admin dashboard
-                                // - Jika belum login -> ke halaman login
-                                href={user ? (user.role === 'admin' ? route('admin.dashboard') : route('dashboard')) : route('login')}
+                                // **PERBAIKAN:** Ganti route() dengan path langsung
+                                href={user ? (user.role === 'admin' ? '/admin/dashboard' : '/dashboard') : '/login'}
                                 className="mt-8 inline-block rounded-lg bg-green-700 px-10 py-3 text-lg font-medium text-white shadow-lg transition duration-300 hover:-translate-y-1 hover:bg-green-800 focus:outline-none focus:ring-4 focus:ring-red-300"
                             >
                                 Infaq Sekarang

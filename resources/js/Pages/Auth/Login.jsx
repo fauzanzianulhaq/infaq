@@ -60,7 +60,8 @@ export default function Login({ status, canResetPassword }) {
 
     const submit = (e) => {
         e.preventDefault();
-        post(route('login'));
+        // PERBAIKAN: Ganti route('login') dengan path langsung
+        post('/login');
     };
 
     return (
@@ -78,11 +79,6 @@ export default function Login({ status, canResetPassword }) {
 
             {/* Wrapper untuk Card + Icon di atasnya */}
             <div className="relative w-full max-w-sm">
-
-                {/* Icon di atas Card */}
-                {/* <div className="absolute z-10 p-3 bg-white rounded-lg shadow-lg left-1/2 -top-7 -translate-x-1/2">
-                    <LoginIcon />
-                </div> */}
 
                 {/* Card Putih */}
                 <div className="relative pt-16 pb-8 px-6 bg-white rounded-2xl shadow-xl">
@@ -158,7 +154,8 @@ export default function Login({ status, canResetPassword }) {
 
                             {canResetPassword && (
                                 <Link
-                                    href={route('password.request')}
+                                    // PERBAIKAN: Ganti route('password.request') dengan path langsung
+                                    href="/forgot-password"
                                     className="text-sm text-green-700 hover:text-green-900 hover:underline"
                                 >
                                     Lupa password?
@@ -184,7 +181,11 @@ export default function Login({ status, canResetPassword }) {
                         </div>
                         
                         {/* Tab Daftar (Link) */}
-                        <Link href={route('register')} className="w-1/2 py-2 font-medium text-center text-gray-500 transition-colors duration-300 rounded-lg hover:text-green-700">
+                        <Link 
+                            // PERBAIKAN: Ganti route('register') dengan path langsung
+                            href="/register" 
+                            className="w-1/2 py-2 font-medium text-center text-gray-500 transition-colors duration-300 rounded-lg hover:text-green-700"
+                        >
                             Daftar
                         </Link>
                     </div>
