@@ -5,17 +5,43 @@ import { useState } from 'react';
 export default function Dashboard({ auth, ringkasan, grafikBulanan, pemasukanPerKelas, transaksiTerbaru, tahun }) {
     const [loading, setLoading] = useState(false);
 
+    // Fungsi untuk sanitasi data - PERBAIKAN: hilangkan kata tidak pantas
+    const sanitizeData = (data) => {
+        if (!data) return [];
+        return data.map(item => ({
+            ...item,
+            siswa_nama: item.siswa_nama 
+                ? item.siswa_nama.replace(/[^a-zA-Z0-9\s]/g, '').replace(/kontol/gi, '***').trim() 
+                : 'N/A'
+        }));
+    };
+
+    // Fungsi untuk validasi data - PERBAIKAN: sesuaikan dengan struktur dari controller
+    const validateData = (data) => {
+        if (!data) return [];
+        const requiredFields = ['siswa_nama', 'kelas', 'jumlah_bayar'];
+        return data.filter(item => 
+            item && requiredFields.every(field => 
+                item[field] !== undefined && item[field] !== null && item[field] !== ''
+            )
+        );
+    };
+
     const generatePDF = async () => {
         setLoading(true);
         try {
-            // Ambil data dari backend
             const response = await fetch('/admin/dashboard/export-data');
+            
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            
             const result = await response.json();
 
             if (result.success) {
                 const data = result.data;
+                const validatedTransaksi = validateData(sanitizeData(data.transaksiTerbaru));
                 
-                // Buat konten PDF sederhana menggunakan window.print()
                 const htmlContent = `
                     <!DOCTYPE html>
                     <html>
@@ -71,11 +97,37 @@ export default function Dashboard({ auth, ringkasan, grafikBulanan, pemasukanPer
                             .no-print { 
                                 display: none; 
                             }
+                            .action-buttons {
+                                text-align: center;
+                                margin: 20px 0;
+                                padding: 20px;
+                                background: #f3f4f6;
+                                border-radius: 5px;
+                            }
+                            .btn-print {
+                                background: #059669;
+                                color: white;
+                                padding: 10px 20px;
+                                border: none;
+                                border-radius: 5px;
+                                cursor: pointer;
+                                margin: 0 10px;
+                            }
+                            .btn-close {
+                                background: #dc2626;
+                                color: white;
+                                padding: 10px 20px;
+                                border: none;
+                                border-radius: 5px;
+                                cursor: pointer;
+                                margin: 0 10px;
+                            }
                             @media print {
                                 body { margin: 10mm; }
                                 .no-print { display: none !important; }
                                 .header { border-bottom: 2px solid #000; }
                                 .stat-card { break-inside: avoid; }
+                                .action-buttons { display: none; }
                             }
                             @page {
                                 size: A4;
@@ -87,17 +139,14 @@ export default function Dashboard({ auth, ringkasan, grafikBulanan, pemasukanPer
                         <div class="header">
                             <h1>${data.judul}</h1>
                             <p>Periode: ${data.tanggal_laporan}</p>
-                            <div class="no-print">
-                                <button onclick="window.print()" style="padding: 10px 20px; background: #059669; color: white; border: none; border-radius: 5px; cursor: pointer; margin: 10px;">
-                                    🖨️ Print Laporan
-                                </button>
-                                <button onclick="window.close()" style="padding: 10px 20px; background: #dc2626; color: white; border: none; border-radius: 5px; cursor: pointer; margin: 10px;">
-                                    ❌ Tutup
-                                </button>
-                                <p style="color: #666; font-size: 14px; margin-top: 10px;">
-                                    Gunakan fitur Print browser dan pilih "Save as PDF" untuk download PDF
-                                </p>
-                            </div>
+                        </div>
+
+                        <div class="action-buttons no-print">
+                            <button class="btn-print" onclick="window.print()">🖨️ Print Laporan</button>
+                            <button class="btn-close" onclick="window.close()">❌ Tutup</button>
+                            <p style="margin-top: 10px; color: #666;">
+                                Gunakan tombol Print dan pilih "Save as PDF" untuk download file PDF
+                            </p>
                         </div>
 
                         <div class="section">
@@ -105,27 +154,27 @@ export default function Dashboard({ auth, ringkasan, grafikBulanan, pemasukanPer
                             <div class="stats-grid">
                                 <div class="stat-card">
                                     <h3>Pemasukan Bulan Ini</h3>
-                                    <p class="total">Rp ${data.ringkasan.pemasukan_bulan_ini.toLocaleString('id-ID')}</p>
+                                    <p class="total">Rp ${(data.ringkasan?.pemasukan_bulan_ini || 0).toLocaleString('id-ID')}</p>
                                 </div>
                                 <div class="stat-card">
                                     <h3>Pemasukan Tahun Ini</h3>
-                                    <p class="total">Rp ${data.ringkasan.pemasukan_tahun_ini.toLocaleString('id-ID')}</p>
+                                    <p class="total">Rp ${(data.ringkasan?.pemasukan_tahun_ini || 0).toLocaleString('id-ID')}</p>
                                 </div>
                                 <div class="stat-card">
                                     <h3>Total Siswa</h3>
-                                    <p>${data.ringkasan.total_siswa} siswa</p>
+                                    <p>${data.ringkasan?.total_siswa || '0'} siswa</p>
                                 </div>
                                 <div class="stat-card">
                                     <h3>Total Guru</h3>
-                                    <p>${data.ringkasan.total_guru} guru</p>
+                                    <p>${data.ringkasan?.total_guru || '0'} guru</p>
                                 </div>
                                 <div class="stat-card">
                                     <h3>Laporan Terkirim</h3>
-                                    <p>${data.ringkasan.laporan_terkirim} laporan</p>
+                                    <p>${data.ringkasan?.laporan_terkirim || '0'} laporan</p>
                                 </div>
                                 <div class="stat-card">
                                     <h3>Transaksi Bulan Ini</h3>
-                                    <p>${data.ringkasan.transaksi_bulan_ini} transaksi</p>
+                                    <p>${data.ringkasan?.transaksi_bulan_ini || '0'} transaksi</p>
                                 </div>
                             </div>
                         </div>
@@ -140,10 +189,10 @@ export default function Dashboard({ auth, ringkasan, grafikBulanan, pemasukanPer
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    ${data.grafikBulanan.map(item => `
+                                    ${(data.grafikBulanan || []).map(item => `
                                         <tr>
-                                            <td>${item.bulan}</td>
-                                            <td class="total">Rp ${item.total.toLocaleString('id-ID')}</td>
+                                            <td>${item.bulan || 'N/A'}</td>
+                                            <td class="total">Rp ${(item.total || 0).toLocaleString('id-ID')}</td>
                                         </tr>
                                     `).join('')}
                                 </tbody>
@@ -160,10 +209,10 @@ export default function Dashboard({ auth, ringkasan, grafikBulanan, pemasukanPer
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    ${data.pemasukanPerKelas.map(item => `
+                                    ${(data.pemasukanPerKelas || []).map(item => `
                                         <tr>
-                                            <td>Kelas ${item.kelas}</td>
-                                            <td class="total">Rp ${item.total.toLocaleString('id-ID')}</td>
+                                            <td>Kelas ${item.kelas || 'N/A'}</td>
+                                            <td class="total">Rp ${(item.total || 0).toLocaleString('id-ID')}</td>
                                         </tr>
                                     `).join('')}
                                 </tbody>
@@ -183,27 +232,29 @@ export default function Dashboard({ auth, ringkasan, grafikBulanan, pemasukanPer
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    ${data.transaksiTerbaru.map(transaksi => `
+                                    ${validatedTransaksi.map(transaksi => `
                                         <tr>
                                             <td>${transaksi.siswa_nama}</td>
                                             <td>${transaksi.kelas}</td>
-                                            <td class="total">Rp ${transaksi.jumlah_bayar.toLocaleString('id-ID')}</td>
-                                            <td>${transaksi.bulan_bayar} ${transaksi.tahun_bayar}</td>
-                                            <td>${transaksi.tanggal}</td>
+                                            <td class="total">Rp ${(transaksi.jumlah_bayar || 0).toLocaleString('id-ID')}</td>
+                                            <td>${transaksi.periode_bayar || 'N/A'}</td>
+                                            <td>${transaksi.tanggal_input || 'N/A'}</td>
                                         </tr>
                                     `).join('')}
+                                    ${validatedTransaksi.length === 0 ? `
+                                        <tr>
+                                            <td colspan="5" style="text-align: center; padding: 20px; color: #666;">
+                                                Tidak ada data transaksi
+                                            </td>
+                                        </tr>
+                                    ` : ''}
                                 </tbody>
                             </table>
-                        </div>
-
-                        <div class="no-print" style="margin-top: 40px; padding: 20px; background: #f3f4f6; border-radius: 5px; text-align: center;">
-                            <p><strong>Tips:</strong> Klik "Print Laporan" lalu pilih "Save as PDF" sebagai destination untuk download file PDF</p>
                         </div>
                     </body>
                     </html>
                 `;
 
-                // Buka di tab baru
                 const printWindow = window.open('', '_blank');
                 printWindow.document.write(htmlContent);
                 printWindow.document.close();
@@ -223,17 +274,22 @@ export default function Dashboard({ auth, ringkasan, grafikBulanan, pemasukanPer
         setLoading(true);
         try {
             const response = await fetch('/admin/dashboard/export-data');
+            
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            
             const result = await response.json();
 
             if (result.success) {
                 const data = result.data;
+                const validatedTransaksi = validateData(sanitizeData(data.transaksiTerbaru));
                 
-                // Buat HTML untuk preview
                 const htmlContent = `
                     <!DOCTYPE html>
                     <html>
                     <head>
-                        <title>${data.judul}</title>
+                        <title>Preview - ${data.judul}</title>
                         <style>
                             body { 
                                 font-family: Arial, sans-serif; 
@@ -288,27 +344,29 @@ export default function Dashboard({ auth, ringkasan, grafikBulanan, pemasukanPer
                                 background: #f3f4f6;
                                 border-radius: 5px;
                             }
-                            .action-buttons button {
-                                padding: 10px 20px;
-                                margin: 0 10px;
-                                border: none;
-                                border-radius: 5px;
-                                cursor: pointer;
-                                font-size: 14px;
-                            }
                             .btn-print {
                                 background: #059669;
                                 color: white;
+                                padding: 10px 20px;
+                                border: none;
+                                border-radius: 5px;
+                                cursor: pointer;
+                                margin: 0 10px;
                             }
                             .btn-close {
                                 background: #dc2626;
                                 color: white;
+                                padding: 10px 20px;
+                                border: none;
+                                border-radius: 5px;
+                                cursor: pointer;
+                                margin: 0 10px;
                             }
                         </style>
                     </head>
                     <body>
                         <div class="header">
-                            <h1>${data.judul}</h1>
+                            <h1>${data.judul} - PREVIEW</h1>
                             <p>Periode: ${data.tanggal_laporan}</p>
                         </div>
 
@@ -325,27 +383,27 @@ export default function Dashboard({ auth, ringkasan, grafikBulanan, pemasukanPer
                             <div class="stats-grid">
                                 <div class="stat-card">
                                     <h3>Pemasukan Bulan Ini</h3>
-                                    <p class="total">Rp ${data.ringkasan.pemasukan_bulan_ini.toLocaleString('id-ID')}</p>
+                                    <p class="total">Rp ${(data.ringkasan?.pemasukan_bulan_ini || 0).toLocaleString('id-ID')}</p>
                                 </div>
                                 <div class="stat-card">
                                     <h3>Pemasukan Tahun Ini</h3>
-                                    <p class="total">Rp ${data.ringkasan.pemasukan_tahun_ini.toLocaleString('id-ID')}</p>
+                                    <p class="total">Rp ${(data.ringkasan?.pemasukan_tahun_ini || 0).toLocaleString('id-ID')}</p>
                                 </div>
                                 <div class="stat-card">
                                     <h3>Total Siswa</h3>
-                                    <p>${data.ringkasan.total_siswa} siswa</p>
+                                    <p>${data.ringkasan?.total_siswa || '0'} siswa</p>
                                 </div>
                                 <div class="stat-card">
                                     <h3>Total Guru</h3>
-                                    <p>${data.ringkasan.total_guru} guru</p>
+                                    <p>${data.ringkasan?.total_guru || '0'} guru</p>
                                 </div>
                                 <div class="stat-card">
                                     <h3>Laporan Terkirim</h3>
-                                    <p>${data.ringkasan.laporan_terkirim} laporan</p>
+                                    <p>${data.ringkasan?.laporan_terkirim || '0'} laporan</p>
                                 </div>
                                 <div class="stat-card">
                                     <h3>Transaksi Bulan Ini</h3>
-                                    <p>${data.ringkasan.transaksi_bulan_ini} transaksi</p>
+                                    <p>${data.ringkasan?.transaksi_bulan_ini || '0'} transaksi</p>
                                 </div>
                             </div>
                         </div>
@@ -360,10 +418,10 @@ export default function Dashboard({ auth, ringkasan, grafikBulanan, pemasukanPer
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    ${data.grafikBulanan.map(item => `
+                                    ${(data.grafikBulanan || []).map(item => `
                                         <tr>
-                                            <td>${item.bulan}</td>
-                                            <td class="total">Rp ${item.total.toLocaleString('id-ID')}</td>
+                                            <td>${item.bulan || 'N/A'}</td>
+                                            <td class="total">Rp ${(item.total || 0).toLocaleString('id-ID')}</td>
                                         </tr>
                                     `).join('')}
                                 </tbody>
@@ -380,10 +438,10 @@ export default function Dashboard({ auth, ringkasan, grafikBulanan, pemasukanPer
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    ${data.pemasukanPerKelas.map(item => `
+                                    ${(data.pemasukanPerKelas || []).map(item => `
                                         <tr>
-                                            <td>Kelas ${item.kelas}</td>
-                                            <td class="total">Rp ${item.total.toLocaleString('id-ID')}</td>
+                                            <td>Kelas ${item.kelas || 'N/A'}</td>
+                                            <td class="total">Rp ${(item.total || 0).toLocaleString('id-ID')}</td>
                                         </tr>
                                     `).join('')}
                                 </tbody>
@@ -403,15 +461,22 @@ export default function Dashboard({ auth, ringkasan, grafikBulanan, pemasukanPer
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    ${data.transaksiTerbaru.map(transaksi => `
+                                    ${validatedTransaksi.map(transaksi => `
                                         <tr>
                                             <td>${transaksi.siswa_nama}</td>
                                             <td>${transaksi.kelas}</td>
-                                            <td class="total">Rp ${transaksi.jumlah_bayar.toLocaleString('id-ID')}</td>
-                                            <td>${transaksi.bulan_bayar} ${transaksi.tahun_bayar}</td>
-                                            <td>${transaksi.tanggal}</td>
+                                            <td class="total">Rp ${(transaksi.jumlah_bayar || 0).toLocaleString('id-ID')}</td>
+                                            <td>${transaksi.periode_bayar || 'N/A'}</td>
+                                            <td>${transaksi.tanggal_input || 'N/A'}</td>
                                         </tr>
                                     `).join('')}
+                                    ${validatedTransaksi.length === 0 ? `
+                                        <tr>
+                                            <td colspan="5" style="text-align: center; padding: 20px; color: #666;">
+                                                Tidak ada data transaksi
+                                            </td>
+                                        </tr>
+                                    ` : ''}
                                 </tbody>
                             </table>
                         </div>
@@ -419,7 +484,6 @@ export default function Dashboard({ auth, ringkasan, grafikBulanan, pemasukanPer
                     </html>
                 `;
 
-                // Buka di tab baru
                 const previewWindow = window.open('', '_blank');
                 previewWindow.document.write(htmlContent);
                 previewWindow.document.close();
@@ -435,30 +499,15 @@ export default function Dashboard({ auth, ringkasan, grafikBulanan, pemasukanPer
         }
     };
 
+    // PERBAIKAN: Validasi dan sanitasi data sebelum render
+    const validatedTransaksi = validateData(sanitizeData(transaksiTerbaru));
+
     return (
         <AuthenticatedLayout
             user={auth.user}
             header={
                 <div className="flex justify-between items-center">
                     <h2 className="text-xl font-semibold leading-tight text-gray-800">Dashboard Admin</h2>
-                    <div className="flex gap-2">
-                        <button 
-                            onClick={previewPDF}
-                            disabled={loading}
-                            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center disabled:opacity-50"
-                        >
-                            <span className="mr-2">👁️</span>
-                            {loading ? 'Loading...' : 'Preview Laporan'}
-                        </button>
-                        <button 
-                            onClick={generatePDF}
-                            disabled={loading}
-                            className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center disabled:opacity-50"
-                        >
-                            <span className="mr-2">📥</span>
-                            {loading ? 'Loading...' : 'Download PDF'}
-                        </button>
-                    </div>
                 </div>
             }
         >
@@ -467,6 +516,16 @@ export default function Dashboard({ auth, ringkasan, grafikBulanan, pemasukanPer
             <div className="min-h-screen bg-gray-50 py-8">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     
+                    {/* Loading Overlay */}
+                    {loading && (
+                        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                            <div className="bg-white p-6 rounded-lg flex items-center shadow-lg">
+                                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600 mr-3"></div>
+                                <span className="text-gray-700">Menyiapkan laporan...</span>
+                            </div>
+                        </div>
+                    )}
+
                     {/* Header Welcome */}
                     <div className="mb-8">
                         <h1 className="text-3xl font-bold text-gray-800">Selamat Datang, {auth.user.name}! 👋</h1>
@@ -503,7 +562,7 @@ export default function Dashboard({ auth, ringkasan, grafikBulanan, pemasukanPer
                                 <div className="ml-4">
                                     <p className="text-sm text-gray-500">Pemasukan Bulan Ini</p>
                                     <p className="text-lg font-bold text-gray-800">
-                                        Rp {ringkasan.pemasukan_bulan_ini?.toLocaleString('id-ID') || '0'}
+                                        Rp {ringkasan?.pemasukan_bulan_ini?.toLocaleString('id-ID') || '0'}
                                     </p>
                                 </div>
                             </div>
@@ -517,7 +576,7 @@ export default function Dashboard({ auth, ringkasan, grafikBulanan, pemasukanPer
                                 <div className="ml-4">
                                     <p className="text-sm text-gray-500">Pemasukan Tahun Ini</p>
                                     <p className="text-lg font-bold text-gray-800">
-                                        Rp {ringkasan.pemasukan_tahun_ini?.toLocaleString('id-ID') || '0'}
+                                        Rp {ringkasan?.pemasukan_tahun_ini?.toLocaleString('id-ID') || '0'}
                                     </p>
                                 </div>
                             </div>
@@ -531,7 +590,7 @@ export default function Dashboard({ auth, ringkasan, grafikBulanan, pemasukanPer
                                 <div className="ml-4">
                                     <p className="text-sm text-gray-500">Total Siswa</p>
                                     <p className="text-lg font-bold text-gray-800">
-                                        {ringkasan.total_siswa?.toLocaleString('id-ID') || '0'}
+                                        {ringkasan?.total_siswa?.toLocaleString('id-ID') || '0'}
                                     </p>
                                 </div>
                             </div>
@@ -545,7 +604,7 @@ export default function Dashboard({ auth, ringkasan, grafikBulanan, pemasukanPer
                                 <div className="ml-4">
                                     <p className="text-sm text-gray-500">Total Guru</p>
                                     <p className="text-lg font-bold text-gray-800">
-                                        {ringkasan.total_guru?.toLocaleString('id-ID') || '0'}
+                                        {ringkasan?.total_guru?.toLocaleString('id-ID') || '0'}
                                     </p>
                                 </div>
                             </div>
@@ -559,7 +618,7 @@ export default function Dashboard({ auth, ringkasan, grafikBulanan, pemasukanPer
                                 <div className="ml-4">
                                     <p className="text-sm text-gray-500">Laporan Terkirim</p>
                                     <p className="text-lg font-bold text-gray-800">
-                                        {ringkasan.laporan_terkirim?.toLocaleString('id-ID') || '0'}
+                                        {ringkasan?.laporan_terkirim?.toLocaleString('id-ID') || '0'}
                                     </p>
                                 </div>
                             </div>
@@ -573,7 +632,7 @@ export default function Dashboard({ auth, ringkasan, grafikBulanan, pemasukanPer
                                 <div className="ml-4">
                                     <p className="text-sm text-gray-500">Transaksi Bulan Ini</p>
                                     <p className="text-lg font-bold text-gray-800">
-                                        {ringkasan.transaksi_bulan_ini?.toLocaleString('id-ID') || '0'}
+                                        {ringkasan?.transaksi_bulan_ini?.toLocaleString('id-ID') || '0'}
                                     </p>
                                 </div>
                             </div>
@@ -594,6 +653,9 @@ export default function Dashboard({ auth, ringkasan, grafikBulanan, pemasukanPer
                                         </span>
                                     </div>
                                 ))}
+                                {(!grafikBulanan || grafikBulanan.length === 0) && (
+                                    <p className="text-gray-500 text-center py-4">Belum ada data grafik bulanan</p>
+                                )}
                             </div>
                         </div>
 
@@ -633,7 +695,7 @@ export default function Dashboard({ auth, ringkasan, grafikBulanan, pemasukanPer
                                     </tr>
                                 </thead>
                                 <tbody className="bg-white divide-y divide-gray-200">
-                                    {transaksiTerbaru && transaksiTerbaru.map((transaksi) => (
+                                    {validatedTransaksi.map((transaksi) => (
                                         <tr key={transaksi.id}>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                                 {transaksi.siswa_nama}
@@ -645,14 +707,14 @@ export default function Dashboard({ auth, ringkasan, grafikBulanan, pemasukanPer
                                                 Rp {transaksi.jumlah_bayar.toLocaleString('id-ID')}
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                {transaksi.bulan_bayar} {transaksi.tahun_bayar}
+                                                {transaksi.periode_bayar || `${transaksi.bulan_bayar} ${transaksi.tahun_bayar}`}
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                {transaksi.tanggal}
+                                                {transaksi.tanggal_input || transaksi.tanggal}
                                             </td>
                                         </tr>
                                     ))}
-                                    {(!transaksiTerbaru || transaksiTerbaru.length === 0) && (
+                                    {validatedTransaksi.length === 0 && (
                                         <tr>
                                             <td colSpan="5" className="px-6 py-8 text-center text-gray-500">
                                                 Belum ada transaksi terbaru

@@ -1,48 +1,7 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import Checkbox from '@/Components/Checkbox';
 import InputError from '@/Components/InputError';
 import { Head, Link, useForm } from '@inertiajs/react';
-
-// --- Icon Komponen (disisipkan di sini untuk kemudahan) ---
-
-// Icon untuk di atas card (panah masuk)
-function LoginIcon() {
-    return (
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-8 h-8">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15m-3-6l-3-3m0 0l-3 3m3-3v12" />
-        </svg>
-    );
-}
-
-// Icon untuk input email (amplop)
-function EmailIcon() {
-    return (
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 12a4.5 4.5 0 1 1-9 0 4.5 4.5 0 0 1 9 0Zm0 0c0 1.657 1.007 3 2.25 3S21 13.657 21 12a9 9 0 1 0-2.636 6.364M16.5 12V8.25" />
-        </svg>
-    );
-}
-
-// Icon untuk input password (gembok)
-function LockIcon() {
-    return (
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" />
-        </svg>
-    );
-}
-
-// Icon untuk mata (password)
-function EyeIcon() {
-    return (
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178a1.012 1.012 0 0 1 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" />
-            <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
-        </svg>
-    );
-}
-
-// --- Komponen Login Utama ---
 
 export default function Login({ status, canResetPassword }) {
     const { data, setData, post, processing, errors, reset } = useForm({
@@ -51,7 +10,8 @@ export default function Login({ status, canResetPassword }) {
         remember: false,
     });
 
-    // Reset password saat komponen di-unmount
+    const [showPassword, setShowPassword] = useState(false);
+
     useEffect(() => {
         return () => {
             reset('password');
@@ -60,135 +20,173 @@ export default function Login({ status, canResetPassword }) {
 
     const submit = (e) => {
         e.preventDefault();
-        // PERBAIKAN: Ganti route('login') dengan path langsung
         post('/login');
     };
 
     return (
-        <div className="flex flex-col items-center justify-center min-h-screen p-4 bg-green-800">
-            {/* Menggunakan bg-green-800 dari Tailwind sebagai ganti #559733 */}
-            <Head title="Log in" />
+        <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
+            <Head title="Login - Catat Infaq" />
 
-            {/* Header Teks */}
-            <div className="mb-8 text-center text-white">
-                <h1 className="text-3xl font-bold">Persiapkan akunmu</h1>
-                <p className="text-sm text-green-200">
-                    Log-in atau Sign-up terlebih dahulu untuk mulai mencatat infaqmu
-                </p>
-            </div>
+            <div className="max-w-md w-full">
+                {/* Header */}
+                <div className="text-center mb-8">
+                    <Link href="/" className="inline-flex items-center space-x-3 mb-6">
+                        <div className="p-2 bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl shadow-lg">
+                                    <img 
+                                        src="/images/Logo.png" 
+                                        alt="InfaQ Logo" 
+                                        className="h-8 w-8 object-contain"
+                                        onError={(e) => {
+                                            e.target.style.display = 'none';
+                                            e.target.nextSibling.style.display = 'flex';
+                                        }}
+                                    />
+                                    {/* Fallback logo */}
+                                    <div className="h-8 w-8 bg-white rounded flex items-center justify-center text-blue-600 font-bold text-sm" style={{display: 'none'}}>
+                                        IS
+                                    </div>
+                                </div>
+                        <span className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                            Catat Infaq
+                        </span>
+                    </Link>
+                    <h1 className="text-3xl font-bold text-gray-800 mb-2">Selamat Datang Kembali</h1>
+                    <p className="text-gray-600">Masuk ke akun Anda untuk melanjutkan</p>
+                </div>
 
-            {/* Wrapper untuk Card + Icon di atasnya */}
-            <div className="relative w-full max-w-sm">
-
-                {/* Card Putih */}
-                <div className="relative pt-16 pb-8 px-6 bg-white rounded-2xl shadow-xl">
-                    
-                    <h2 className="mb-6 text-2xl font-bold text-center text-gray-900">
-                        Login Akun
-                    </h2>
-
-                    {/* Menampilkan status (cth: reset password) */}
+                {/* Login Card */}
+                <div className="bg-white rounded-2xl shadow-xl border border-gray-200/50 p-8">
                     {status && (
-                        <div className="mb-4 text-sm font-medium text-green-600">
+                        <div className="mb-6 p-3 bg-green-50 border border-green-200 rounded-lg text-green-700 text-sm">
                             {status}
                         </div>
                     )}
 
-                    <form onSubmit={submit}>
-                        
-                        {/* Input Email/Username */}
-                        <div className="mb-4">
+                    <form onSubmit={submit} className="space-y-6">
+                        {/* Email Input */}
+                        <div>
+                            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+                                Email
+                            </label>
                             <div className="relative">
-                                <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
-                                    <EmailIcon />
-                                </span>
+                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <svg className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" />
+                                    </svg>
+                                </div>
                                 <input
                                     id="email"
                                     type="email"
                                     name="email"
                                     value={data.email}
-                                    autoComplete="username"
+                                    autoComplete="email"
                                     autoFocus
                                     onChange={(e) => setData('email', e.target.value)}
-                                    placeholder="Email/Username"
-                                    className="block w-full py-3 pl-10 pr-4 text-gray-900 bg-gray-100 border-none rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                                    className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200"
+                                    placeholder="masukkan email Anda"
                                 />
                             </div>
                             <InputError message={errors.email} className="mt-2" />
                         </div>
 
-                        {/* Input Password */}
-                        <div className="mb-4">
+                        {/* Password Input */}
+                        <div>
+                            <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
+                                Password
+                            </label>
                             <div className="relative">
-                                <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
-                                    <LockIcon />
-                                </span>
+                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <svg className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                                    </svg>
+                                </div>
                                 <input
                                     id="password"
-                                    type="password"
+                                    type={showPassword ? "text" : "password"}
                                     name="password"
                                     value={data.password}
                                     autoComplete="current-password"
                                     onChange={(e) => setData('password', e.target.value)}
-                                    placeholder="Password"
-                                    className="block w-full py-3 pl-10 pr-10 text-gray-900 bg-gray-100 border-none rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                                    className="block w-full pl-10 pr-10 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200"
+                                    placeholder="masukkan password Anda"
                                 />
-                                <span className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 cursor-pointer">
-                                    <EyeIcon />
-                                </span>
+                                <button
+                                    type="button"
+                                    className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                                    onClick={() => setShowPassword(!showPassword)}
+                                >
+                                    <svg className={`h-5 w-5 ${showPassword ? 'text-blue-600' : 'text-gray-400'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        {showPassword ? (
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+                                        ) : (
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                        )}
+                                    </svg>
+                                </button>
                             </div>
                             <InputError message={errors.password} className="mt-2" />
                         </div>
-                        
-                        {/* Baris "Ingat saya" & "Lupa password" */}
-                        <div className="flex items-center justify-between mb-6">
+
+                        {/* Remember & Forgot Password */}
+                        <div className="flex items-center justify-between">
                             <label className="flex items-center">
                                 <Checkbox
                                     name="remember"
                                     checked={data.remember}
                                     onChange={(e) => setData('remember', e.target.checked)}
-                                    className="text-green-700" // Mewarnai checkbox
                                 />
-                                <span className="ml-2 text-sm text-gray-600">Ingat saya?</span>
+                                <span className="ml-2 text-sm text-gray-600">Ingat saya</span>
                             </label>
 
                             {canResetPassword && (
                                 <Link
-                                    // PERBAIKAN: Ganti route('password.request') dengan path langsung
                                     href="/forgot-password"
-                                    className="text-sm text-green-700 hover:text-green-900 hover:underline"
+                                    className="text-sm text-blue-600 hover:text-blue-800 transition duration-200"
                                 >
                                     Lupa password?
                                 </Link>
                             )}
                         </div>
 
-                        {/* Tombol Login Utama */}
+                        {/* Login Button */}
                         <button
                             type="submit"
-                            className="w-full py-3 font-semibold text-white bg-green-700 rounded-lg shadow-md transition-colors duration-300 hover:bg-green-800 disabled:opacity-50"
                             disabled={processing}
+                            className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 px-4 rounded-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
                         >
-                            {processing ? 'Loading...' : 'Login'}
+                            {processing ? (
+                                <span className="flex items-center justify-center">
+                                    <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
+                                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                    </svg>
+                                    Memproses...
+                                </span>
+                            ) : (
+                                'Masuk'
+                            )}
                         </button>
                     </form>
 
-                    {/* Toggle Login / Daftar */}
-                    <div className="p-1 mt-6 bg-gray-100 rounded-lg flex">
-                        {/* Tab Login (Aktif) */}
-                        <div className="w-1/2 py-2 font-semibold text-center text-green-700 bg-white rounded-lg shadow-sm">
-                            Login
-                        </div>
-                        
-                        {/* Tab Daftar (Link) */}
-                        <Link 
-                            // PERBAIKAN: Ganti route('register') dengan path langsung
-                            href="/register" 
-                            className="w-1/2 py-2 font-medium text-center text-gray-500 transition-colors duration-300 rounded-lg hover:text-green-700"
-                        >
-                            Daftar
-                        </Link>
+                    {/* Register Link */}
+                    <div className="mt-6 text-center">
+                        <p className="text-sm text-gray-600">
+                            Belum punya akun?{' '}
+                            <Link
+                                href="/register"
+                                className="font-semibold text-blue-600 hover:text-blue-800 transition duration-200"
+                            >
+                                Daftar di sini
+                            </Link>
+                        </p>
                     </div>
+                </div>
+
+                {/* Footer */}
+                <div className="mt-8 text-center">
+                    <p className="text-xs text-gray-500">
+                        &copy; {new Date().getFullYear()} InfaQ School. All rights reserved.
+                    </p>
                 </div>
             </div>
         </div>

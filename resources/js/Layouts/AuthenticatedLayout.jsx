@@ -1,266 +1,267 @@
-import ApplicationLogo from '@/Components/ApplicationLogo';
-import Dropdown from '@/Components/Dropdown';
 import NavLink from '@/Components/NavLink';
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink';
 import { Link, usePage } from '@inertiajs/react';
 import { useState } from 'react';
 
 export default function AuthenticatedLayout({ header, children }) {
-    // 'user' object ini sekarang memiliki 'role' berkat middleware HandleInertiaRequests
     const user = usePage().props.auth.user;
-
-    const [showingNavigationDropdown, setShowingNavigationDropdown] =
-        useState(false);
+    const [showingNavigationDropdown, setShowingNavigationDropdown] = useState(false);
 
     return (
-        <div className="min-h-screen bg-gray-100">
-            <nav className="border-b border-gray-100 bg-white">
+        <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+            {/* Modern Navigation Bar */}
+            <nav className="bg-white/90 backdrop-blur-lg border-b border-blue-200/50 shadow-lg">
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-                    <div className="flex h-16 justify-between">
-                        <div className="flex">
-                            <div className="flex shrink-0 items-center">
-                                <Link href="/">
-                                    <ApplicationLogo className="block h-9 w-auto fill-current text-gray-800" />
-                                </Link>
-                            </div>
+                    <div className="flex h-20 justify-between">
+{/* Logo & Brand */}
+<div className="flex items-center">
+    <div className="flex shrink-0 items-center">
+        <Link href="/" className="flex items-center space-x-3">
+            {/* LOGO YANG TIDAK GEPENG */}
+            <div className="p-2 bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl shadow-lg flex items-center justify-center">
+                {/* Option 1: Jika punya logo square */}
+                <img 
+                    src="/images/logo.png" 
+                    alt="Logo Sekolah" 
+                    className="h-8 w-8 object-contain rounded"
+                    onError={(e) => {
+                        e.target.style.display = 'none';
+                        e.target.nextSibling.style.display = 'flex';
+                    }}
+                />
+                {/* Fallback text logo */}
+                <div className="h-8 w-8 bg-white rounded flex items-center justify-center text-blue-600 font-bold text-sm" style={{display: 'none'}}>
+                    IS
+                </div>
+            </div>
+            <span className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                Catat Infaq
+            </span>
+        </Link>
+    </div>
 
-                            {/* --- NAVIGASI DESKTOP --- */}
-                            <div className="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                                
-                                {/* Tampilkan jika rolenya 'user' */}
-                                {user.role === 'user' && (
-                                    <NavLink
-                                        href="/dashboard"
-                                        active={window.location.pathname === '/dashboard'}
-                                    >
-                                        Dashboard
-                                    </NavLink>
-                                )}
+    {/* Desktop Navigation */}
+    <div className="hidden md:ml-8 md:flex md:space-x-1">
+        {user.role === 'user' && (
+            <NavLink
+                href="/dashboard"
+                active={window.location.pathname === '/dashboard'}
+                className="px-4 py-2 rounded-lg transition-all duration-200 hover:bg-blue-50 hover:text-blue-700 font-medium"
+            >
+                <span className="flex items-center">
+                    📊 Dashboard
+                </span>
+            </NavLink>
+        )}
 
-                                {/* Tampilkan jika rolenya 'admin' */}
-                                {user.role === 'admin' && (
-                                    <NavLink
-                                        href="/admin/dashboard"
-                                        active={window.location.pathname === '/admin/dashboard'}
-                                    >
-                                        Admin Dashboard
-                                    </NavLink>
-                                )}
-                                
-                                {/* === MENU BARU 1: KELOLA SISWA === */}
-                                {user.role === 'admin' && (
-                                    <NavLink 
-                                        href="/admin/siswa" 
-                                        active={window.location.pathname.startsWith('/admin/siswa')}
-                                    >
-                                        Kelola Siswa
-                                    </NavLink>
-                                )}
-                                
-                                {/* === MENU BARU 2: KELOLA INFAQ === */}
-                                {user.role === 'admin' && (
-                                    <NavLink 
-                                        href="/admin/infaq" 
-                                        active={window.location.pathname.startsWith('/admin/infaq')}
-                                    >
-                                        Kelola Infaq
-                                    </NavLink>
-                                )}
+        {user.role === 'admin' && (
+            <>
+                <NavLink
+                    href="/admin/dashboard"
+                    active={window.location.pathname === '/admin/dashboard'}
+                    className="px-4 py-2 rounded-lg transition-all duration-200 hover:bg-blue-50 hover:text-blue-700 font-medium"
+                >
+                    <span className="flex items-center">
+                        🏠 Dashboard
+                    </span>
+                </NavLink>
                 
-                                {/* === MENU BARU 3: KELOLA GURU === */}
-                                {user.role === 'admin' && (
-                                    <NavLink 
-                                        href="/admin/users" 
-                                        active={window.location.pathname.startsWith('/admin/users')}
-                                    >
-                                        Kelola Guru
-                                    </NavLink>
-                                )}
+                <NavLink 
+                    href="/admin/siswa" 
+                    active={window.location.pathname.startsWith('/admin/siswa')}
+                    className="px-4 py-2 rounded-lg transition-all duration-200 hover:bg-green-50 hover:text-green-700 font-medium"
+                >
+                    <span className="flex items-center">
+                        👨‍🎓 Siswa
+                    </span>
+                </NavLink>
+                
+                <NavLink 
+                    href="/admin/infaq" 
+                    active={window.location.pathname.startsWith('/admin/infaq')}
+                    className="px-4 py-2 rounded-lg transition-all duration-200 hover:bg-purple-50 hover:text-purple-700 font-medium"
+                >
+                    <span className="flex items-center">
+                        💰 Infaq
+                    </span>
+                </NavLink>
 
-                            </div>
-                            {/* --- NAVIGASI DESKTOP SELESAI --- */}
-                            
-                        </div>
+                <NavLink 
+                    href="/admin/users" 
+                    active={window.location.pathname.startsWith('/admin/users')}
+                    className="px-4 py-2 rounded-lg transition-all duration-200 hover:bg-orange-50 hover:text-orange-700 font-medium"
+                >
+                    <span className="flex items-center">
+                        👨‍🏫 Guru
+                    </span>
+                </NavLink>
+            </>
+        )}
+    </div>
+</div>
 
-                        <div className="hidden sm:ms-6 sm:flex sm:items-center">
-                            <div className="relative ms-3">
-                                <Dropdown>
-                                    <Dropdown.Trigger>
-                                        <span className="inline-flex rounded-md">
-                                            <button
-                                                type="button"
-                                                className="inline-flex items-center rounded-md border border-transparent bg-white px-3 py-2 text-sm font-medium leading-4 text-gray-500 transition duration-150 ease-in-out hover:text-gray-700 focus:outline-none"
-                                            >
-                                                {user.name}
+{/* User Menu - TANPA DROPDOWN */}
+<div className="flex items-center space-x-4">
+    {/* Welcome Text - Desktop */}
+    <div className="hidden md:flex md:items-center md:space-x-4">
+        <div className="text-right">
+            <p className="text-sm text-gray-600">Halo,</p>
+            <p className="text-sm font-semibold text-gray-800">{user.name}</p>
+        </div>
+        <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-semibold text-sm">
+            {user.name.charAt(0).toUpperCase()}
+        </div>
+    </div>
 
-                                                <svg
-                                                    className="-me-0.5 ms-2 h-4 w-4"
-                                                    xmlns="http://www.w3.org/2000/svg"
-                                                    viewBox="0 0 20 20"
-                                                    fill="currentColor"
-                                                >
-                                                    <path
-                                                        fillRule="evenodd"
-                                                        d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                                                        clipRule="evenodd"
-                                                    />
-                                                </svg>
-                                            </button>
-                                        </span>
-                                    </Dropdown.Trigger>
+    {/* Profile & Logout Buttons - TANPA DROPDOWN */}
+    <div className="hidden md:flex md:items-center md:space-x-2">
+        <Link 
+            href="/profile" 
+            className="flex items-center space-x-2 px-3 py-2 text-sm text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-200 border border-gray-200"
+        >
+            <span>👤</span>
+            <span>Profile</span>
+        </Link>
+        
+        <Link 
+            href="/logout" 
+            method="post" 
+            as="button"
+            className="flex items-center space-x-2 px-3 py-2 text-sm text-gray-700 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all duration-200 border border-gray-200"
+        >
+            <span>🚪</span>
+            <span>Logout</span>
+        </Link>
+    </div>
 
-                                    <Dropdown.Content>
-                                        <Dropdown.Link
-                                            href="/profile"
-                                        >
-                                            Profile
-                                        </Dropdown.Link>
-                                        <Dropdown.Link
-                                            href="/logout"
-                                            method="post"
-                                            as="button"
-                                        >
-                                            Log Out
-                                        </Dropdown.Link>
-                                    </Dropdown.Content>
-                                </Dropdown>
-                            </div>
-                        </div>
-
-                        <div className="-me-2 flex items-center sm:hidden">
-                            <button
-                                onClick={() =>
-                                    setShowingNavigationDropdown(
-                                        (previousState) => !previousState,
-                                    )
-                                }
-                                className="inline-flex items-center justify-center rounded-md p-2 text-gray-400 transition duration-150 ease-in-out hover:bg-gray-100 hover:text-gray-500 focus:bg-gray-100 focus:text-gray-500 focus:outline-none"
-                            >
-                                <svg
-                                    className="h-6 w-6"
-                                    stroke="currentColor"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                >
-                                    <path
-                                        className={
-                                            !showingNavigationDropdown
-                                                ? 'inline-flex'
-                                                : 'hidden'
-                                        }
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        strokeWidth="2"
-                                        d="M4 6h16M4 12h16M4 18h16"
-                                    />
-                                    <path
-                                        className={
-                                            showingNavigationDropdown
-                                                ? 'inline-flex'
-                                                : 'hidden'
-                                        }
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        strokeWidth="2"
-                                        d="M6 18L18 6M6 6l12 12"
-                                    />
-                                </svg>
-                            </button>
-                        </div>
+    {/* Mobile menu button */}
+    <div className="flex items-center md:hidden">
+        <button
+            onClick={() => setShowingNavigationDropdown(!showingNavigationDropdown)}
+            className="p-3 rounded-lg bg-white/80 border border-gray-300 hover:bg-white hover:shadow-md transition-all duration-200"
+        >
+            {showingNavigationDropdown ? (
+                <svg className="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            ) : (
+                <svg className="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+            )}
+        </button>
+    </div>
+</div>
                     </div>
                 </div>
 
-                {/* --- NAVIGASI MOBILE --- */}
-                <div
-                    className={
-                        (showingNavigationDropdown ? 'block' : 'hidden') +
-                        ' sm:hidden'
-                    }
-                >
-                    <div className="space-y-1 pb-3 pt-2">
-                        
-                        {/* Tampilkan jika rolenya 'user' */}
+                {/* Mobile Navigation Menu */}
+                <div className={`${showingNavigationDropdown ? 'block' : 'hidden'} md:hidden bg-white/95 backdrop-blur-lg border-t border-blue-200/50 shadow-lg`}>
+                    <div className="px-4 pt-4 pb-6 space-y-2">
+                        {/* User Info Mobile */}
+                        <div className="px-3 py-4 border-b border-gray-200/50 mb-2">
+                            <div className="flex items-center space-x-3">
+                                <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-semibold text-lg">
+                                    {user.name.charAt(0).toUpperCase()}
+                                </div>
+                                <div>
+                                    <p className="text-sm font-semibold text-gray-900">{user.name}</p>
+                                    <p className="text-xs text-gray-500">{user.email}</p>
+                                    <p className="text-xs text-blue-600 font-medium capitalize">
+                                        {user.role === 'admin' ? 'Administrator' : 'Guru'}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Mobile Navigation Links */}
                         {user.role === 'user' && (
                             <ResponsiveNavLink
                                 href="/dashboard"
                                 active={window.location.pathname === '/dashboard'}
+                                className="flex items-center px-4 py-3 rounded-lg text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition-colors duration-200 text-base font-medium"
                             >
+                                <span className="mr-3 text-lg">📊</span>
                                 Dashboard
                             </ResponsiveNavLink>
                         )}
 
-                        {/* Tampilkan jika rolenya 'admin' */}
-                        {user.role === 'admin' && (
-                            <ResponsiveNavLink
-                                href="/admin/dashboard"
-                                active={window.location.pathname === '/admin/dashboard'}
-                            >
-                                Admin Dashboard
-                            </ResponsiveNavLink>
-                        )}
-                        
-                        {/* === MENU BARU MOBILE === */}
                         {user.role === 'admin' && (
                             <>
+                                <ResponsiveNavLink
+                                    href="/admin/dashboard"
+                                    active={window.location.pathname === '/admin/dashboard'}
+                                    className="flex items-center px-4 py-3 rounded-lg text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition-colors duration-200 text-base font-medium"
+                                >
+                                    <span className="mr-3 text-lg">🏠</span>
+                                    Admin Dashboard
+                                </ResponsiveNavLink>
+                                
                                 <ResponsiveNavLink 
                                     href="/admin/siswa" 
                                     active={window.location.pathname.startsWith('/admin/siswa')}
+                                    className="flex items-center px-4 py-3 rounded-lg text-gray-700 hover:bg-green-50 hover:text-green-700 transition-colors duration-200 text-base font-medium"
                                 >
+                                    <span className="mr-3 text-lg">👨‍🎓</span>
                                     Kelola Siswa
                                 </ResponsiveNavLink>
+                                
                                 <ResponsiveNavLink 
                                     href="/admin/infaq" 
                                     active={window.location.pathname.startsWith('/admin/infaq')}
+                                    className="flex items-center px-4 py-3 rounded-lg text-gray-700 hover:bg-purple-50 hover:text-purple-700 transition-colors duration-200 text-base font-medium"
                                 >
+                                    <span className="mr-3 text-lg">💰</span>
                                     Kelola Infaq
                                 </ResponsiveNavLink>
+                                
                                 <ResponsiveNavLink 
                                     href="/admin/users" 
                                     active={window.location.pathname.startsWith('/admin/users')}
+                                    className="flex items-center px-4 py-3 rounded-lg text-gray-700 hover:bg-orange-50 hover:text-orange-700 transition-colors duration-200 text-base font-medium"
                                 >
+                                    <span className="mr-3 text-lg">👨‍🏫</span>
                                     Kelola Guru
                                 </ResponsiveNavLink>
                             </>
                         )}
 
-                    </div>
-
-                    <div className="border-t border-gray-200 pb-1 pt-4">
-                        <div className="px-4">
-                            <div className="text-base font-medium text-gray-800">
-                                {user.name}
-                            </div>
-                            <div className="text-sm font-medium text-gray-500">
-                                {user.email}
-                            </div>
-                        </div>
-
-                        <div className="mt-3 space-y-1">
-                            <ResponsiveNavLink href="/profile">
-                                Profile
+                        {/* Mobile Profile Links */}
+                        <div className="pt-4 border-t border-gray-200/50 mt-4 space-y-2">
+                            <ResponsiveNavLink 
+                                href="/profile"
+                                className="flex items-center px-4 py-3 rounded-lg text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition-colors duration-200 text-base font-medium"
+                            >
+                                <span className="mr-3 text-lg">👤</span>
+                                Profile Saya
                             </ResponsiveNavLink>
+                            
                             <ResponsiveNavLink
                                 method="post"
                                 href="/logout"
                                 as="button"
+                                className="flex items-center px-4 py-3 rounded-lg text-gray-700 hover:bg-red-50 hover:text-red-700 transition-colors duration-200 text-base font-medium w-full text-left"
                             >
-                                Log Out
+                                <span className="mr-3 text-lg">🚪</span>
+                                Keluar
                             </ResponsiveNavLink>
                         </div>
                     </div>
                 </div>
-                {/* --- NAVIGASI MOBILE SELESAI --- */}
             </nav>
 
+            {/* Page Content */}
             {header && (
-                <header className="bg-white shadow">
+                <header className="bg-white/80 backdrop-blur-sm shadow-sm">
                     <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
                         {header}
                     </div>
                 </header>
             )}
 
-            <main>{children}</main>
+            <main className="relative">
+                {children}
+            </main>
         </div>
     );
 }
